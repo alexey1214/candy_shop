@@ -75,8 +75,12 @@ WSGI_APPLICATION = 'candy_shop.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'candy_shop',
+        'USER': 'candy_shop',
+        'PASSWORD': 'candy_shop',
+        'HOST': '127.0.0.1',
+        'PORT': '5432',
     }
 }
 
