@@ -1,0 +1,204 @@
+[
+{
+  "model": "core.region",
+  "pk": 1,
+  "fields": {}
+},
+{
+  "model": "core.region",
+  "pk": 12,
+  "fields": {}
+},
+{
+  "model": "core.region",
+  "pk": 22,
+  "fields": {}
+},
+{
+  "model": "core.region",
+  "pk": 33,
+  "fields": {}
+},
+{
+  "model": "core.courier",
+  "pk": 1,
+  "fields": {
+    "type": "foot"
+  }
+},
+{
+  "model": "core.courier",
+  "pk": 2,
+  "fields": {
+    "type": "bike"
+  }
+},
+{
+  "model": "core.courier",
+  "pk": 3,
+  "fields": {
+    "type": "car"
+  }
+},
+{
+  "model": "core.courierworkshift",
+  "pk": 1,
+  "fields": {
+    "courier": 1,
+    "start": "11:35:00",
+    "end": "14:05:00"
+  }
+},
+{
+  "model": "core.courierworkshift",
+  "pk": 2,
+  "fields": {
+    "courier": 1,
+    "start": "09:00:00",
+    "end": "11:00:00"
+  }
+},
+{
+  "model": "core.courierworkshift",
+  "pk": 3,
+  "fields": {
+    "courier": 2,
+    "start": "09:00:00",
+    "end": "18:00:00"
+  }
+},
+{
+  "model": "core.courierworkshift",
+  "pk": 4,
+  "fields": {
+    "courier": 3,
+    "start": "10:00:00",
+    "end": "14:00:00"
+  }
+},
+{
+  "model": "core.courierworkshift",
+  "pk": 5,
+  "fields": {
+    "courier": 3,
+    "start": "15:00:00",
+    "end": "19:00:00"
+  }
+},
+{
+  "model": "core.courierregion",
+  "pk": 1,
+  "fields": {
+    "courier": 1,
+    "region": 1
+  }
+},
+{
+  "model": "core.courierregion",
+  "pk": 2,
+  "fields": {
+    "courier": 1,
+    "region": 12
+  }
+},
+{
+  "model": "core.courierregion",
+  "pk": 3,
+  "fields": {
+    "courier": 1,
+    "region": 22
+  }
+},
+{
+  "model": "core.courierregion",
+  "pk": 4,
+  "fields": {
+    "courier": 2,
+    "region": 22
+  }
+},
+{
+  "model": "core.courierregion",
+  "pk": 5,
+  "fields": {
+    "courier": 3,
+    "region": 12
+  }
+},
+{
+  "model": "core.courierregion",
+  "pk": 6,
+  "fields": {
+    "courier": 3,
+    "region": 22
+  }
+},
+{
+  "model": "core.courierregion",
+  "pk": 7,
+  "fields": {
+    "courier": 3,
+    "region": 33
+  }
+},
+{
+  "model": "core.order",
+  "pk": 1,
+  "fields": {
+    "weight": "0.23",
+    "region": 12
+  }
+},
+{
+  "model": "core.order",
+  "pk": 2,
+  "fields": {
+    "weight": "15.00",
+    "region": 1
+  }
+},
+{
+  "model": "core.order",
+  "pk": 3,
+  "fields": {
+    "weight": "0.01",
+    "region": 22
+  }
+},
+{
+  "model": "core.orderdeliveryinterval",
+  "pk": 1,
+  "fields": {
+    "order": 1,
+    "start": "09:00:00",
+    "end": "18:00:00"
+  }
+},
+{
+  "model": "core.orderdeliveryinterval",
+  "pk": 2,
+  "fields": {
+    "order": 2,
+    "start": "09:00:00",
+    "end": "18:00:00"
+  }
+},
+{
+  "model": "core.orderdeliveryinterval",
+  "pk": 3,
+  "fields": {
+    "order": 3,
+    "start": "09:00:00",
+    "end": "12:00:00"
+  }
+},
+{
+  "model": "core.orderdeliveryinterval",
+  "pk": 4,
+  "fields": {
+    "order": 3,
+    "start": "16:00:00",
+    "end": "21:30:00"
+  }
+}
+]
