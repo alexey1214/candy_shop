@@ -32,7 +32,7 @@ class CourierAdmin(admin.ModelAdmin):
 
     @staticmethod
     def regions(obj):
-        return list(obj.courier_regions.values_list('id', flat=True))
+        return list(obj.courier_regions.values_list('region', flat=True))
 
     @staticmethod
     def work_shifts(obj):
