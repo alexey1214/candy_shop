@@ -6,6 +6,9 @@ class Order(models.Model):
     weight = models.DecimalField(max_digits=6, decimal_places=2)  # In kilograms
     region = models.ForeignKey(
             'core.Region', on_delete=models.CASCADE, related_name='orders')
+    shipment = models.ForeignKey(
+            'core.Shipment', blank=True, null=True, on_delete=models.SET_NULL,
+            related_name='orders')
 
     def __str__(self):
         return f'{self.id}'
