@@ -9,6 +9,7 @@ class Order(models.Model):
     shipment = models.ForeignKey(
             'core.Shipment', blank=True, null=True, on_delete=models.SET_NULL,
             related_name='orders')
+    complete_time = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
         return f'{self.id}'
