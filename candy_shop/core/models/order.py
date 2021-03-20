@@ -1,5 +1,7 @@
 from django.db import models
 
+from core.managers.order import OrderManager
+
 
 class Order(models.Model):
     id = models.PositiveBigIntegerField(primary_key=True)
@@ -10,6 +12,9 @@ class Order(models.Model):
             'core.Shipment', blank=True, null=True, on_delete=models.SET_NULL,
             related_name='orders')
     complete_time = models.DateTimeField(blank=True, null=True)
+
+    all_objects = models.Manager()
+    objects = OrderManager()
 
     def __str__(self):
         return f'{self.id}'

@@ -17,6 +17,18 @@ class Courier(models.Model):
     def __str__(self):
         return f'{self.id}'
 
+    @property
+    def capacity(self):
+        return self.type.capacity
+
+    @property
+    def region_ids(self):
+        return self.courier_regions.values_list('region', flat=True)
+
+    @property
+    def work_shift_intervals(self):
+        return self.work_shifts.order_by('start').values_list('start', 'end')
+
 
 class CourierWorkShift(models.Model):
     courier = models.ForeignKey(
