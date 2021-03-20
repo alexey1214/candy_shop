@@ -55,3 +55,17 @@ def assign_orders(courier_id):
 
     # No active deliveries, no suitable orders for this courier
     return [], None
+
+
+@transaction.atomic
+def complete_order(order_id, complete_time):
+    order = Order.objects.get(id=order_id)
+
+    if not order.complete_time:
+        shipment = order.shipment
+        if order.shipment.orders.filter(complete_time__isnull=True).count() == 1:
+            # This is the last (or the only one) order in the shipment
+            shipment.complete_time = complete_time
+            shipment.save()
+        order.complete_time = complete_time
+        order.save()
