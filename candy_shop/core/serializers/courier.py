@@ -43,7 +43,7 @@ class CourierSerializer(serializers.Serializer):
         courier, created = Courier.objects.get_or_create(
                 id=courier_id, defaults={'type': validated_data['type']})
         if not created:
-            raise serializers.ValidationError(f'Courier already exists.')
+            raise serializers.ValidationError(f'Courier({courier_id}) already exists.')
 
         for region_id in validated_data['regions']:
             region, created = Region.objects.get_or_create(id=region_id)
