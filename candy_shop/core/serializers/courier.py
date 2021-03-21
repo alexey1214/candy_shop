@@ -1,27 +1,13 @@
-from datetime import datetime
-
 from rest_framework import serializers
 
-
 from core.models import CourierType, Courier, Region
+from core.serializers.utils import TimeIntervalSerializer
 
 
 class CourierTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = CourierType
         fields = ['url', 'code', 'capacity']
-
-
-class TimeIntervalSerializer(serializers.Serializer):
-    def to_representation(self, instance):
-        return f"{instance['start']:%H:%M}-{instance['end']:%H:%M}"
-
-    def to_internal_value(self, data):
-        try:
-            start, end = (datetime.strptime(s, '%H:%M') for s in data.split('-'))
-        except Exception:
-            raise serializers.ValidationError(f'Incorrect format: "{data}".')
-        return {'start': start, 'end': end}
 
 
 class CourierSerializer(serializers.Serializer):
