@@ -27,7 +27,7 @@ class TimeIntervalSerializer(serializers.Serializer):
 class CourierSerializer(serializers.Serializer):
     courier_id = serializers.IntegerField(source='id')
     courier_type = serializers.PrimaryKeyRelatedField(source='type', queryset=CourierType.objects.all())
-    regions = serializers.ListSerializer(child=serializers.IntegerField(), write_only=True, allow_empty=False)
+    regions = serializers.ListSerializer(child=serializers.IntegerField(min_value=1), write_only=True, allow_empty=False)
     working_hours = serializers.ListSerializer(child=TimeIntervalSerializer(), write_only=True, allow_empty=False)
 
     class Meta:
