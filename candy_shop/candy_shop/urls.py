@@ -28,7 +28,7 @@ class OptionalSlashRouter(routers.DefaultRouter):
 
 router = OptionalSlashRouter()
 router.register(r'courier_types', views.CourierTypeViewSet)
-router.register(r'couriers', views.CourierViewSet)
+router.register(r'couriers', views.CourierViewSet, basename='Courier')
 
 
 urlpatterns = [
