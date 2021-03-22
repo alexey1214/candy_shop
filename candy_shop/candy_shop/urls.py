@@ -31,8 +31,8 @@ router.register(r'courier_types', views.CourierTypeViewSet)
 router.register(r'couriers', views.CourierViewSet, basename='Courier')
 router.register(r'orders', views.OrderViewSet, basename='Order')
 
-
 urlpatterns = [
-    path('', include(router.urls)),
+    path('orders/assign', views.OrderAssignView.as_view()),
     path('admin/', admin.site.urls),
+    path('', include(router.urls)),
 ]

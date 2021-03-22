@@ -2,8 +2,9 @@ from decimal import Decimal
 
 from rest_framework import serializers
 
-from core.models import Order
+from core.models import Order, Courier
 from core.serializers.utils import TimeIntervalSerializer
+from core.services.courier import assign_orders
 
 
 class OrderSerializer(serializers.Serializer):
@@ -19,7 +20,6 @@ class OrderSerializer(serializers.Serializer):
         return ret
 
     def create(self, validated_data):
-        print(validated_data)
         """validated_data = {
             'id': 5,
             'weight': Decimal('7.60'),
@@ -43,3 +43,17 @@ class OrderSerializer(serializers.Serializer):
             order.delivery_intervals.get_or_create(start=interval['start'], end=interval['end'])
 
         return order
+
+
+class OrderResponseSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+
+
+class OrdersAssignSerializer(serializers.Serializer):
+    courier_id = serializers.PrimaryKeyRelatedField(write_only=True, queryset=Courier.objects.all())
+    orders = OrderResponseSerializer(many=True, read_only=True)
+    assign_time = serializers.DateTimeField(read_only=True)
+
+    def create(self, validated_data):
+        order_ids, assign_time = assign_orders(courier_id=validated_data['courier_id'].id)
+        return {'orders': [{'id': i} for i in order_ids], 'assign_time': assign_time}
