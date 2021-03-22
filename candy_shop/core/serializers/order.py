@@ -7,7 +7,7 @@ from core.serializers.utils import TimeIntervalSerializer
 
 
 class OrderSerializer(serializers.Serializer):
-    order_id = serializers.IntegerField(source='id')
+    order_id = serializers.IntegerField(source='id', min_value=1)
     weight = serializers.DecimalField(max_digits=6, decimal_places=2, min_value=Decimal('0.01'), coerce_to_string=False)
     region = serializers.IntegerField(source='region.id', min_value=1)
     delivery_hours = serializers.ListSerializer(child=TimeIntervalSerializer(), write_only=True, allow_empty=False)

@@ -11,7 +11,7 @@ class CourierTypeSerializer(serializers.ModelSerializer):
 
 
 class CourierSerializer(serializers.Serializer):
-    courier_id = serializers.IntegerField(source='id')
+    courier_id = serializers.IntegerField(source='id', min_value=1)
     courier_type = serializers.PrimaryKeyRelatedField(source='type', queryset=CourierType.objects.all())
     regions = serializers.ListSerializer(child=serializers.IntegerField(min_value=1), write_only=True, allow_empty=False)
     working_hours = serializers.ListSerializer(child=TimeIntervalSerializer(), write_only=True, allow_empty=False)
