@@ -4,7 +4,7 @@ from rest_framework import serializers
 
 from core.models import Order, Courier
 from core.serializers.utils import TimeIntervalSerializer
-from core.services.courier import assign_orders
+from core.services.courier import assign_orders, complete_order
 
 
 class OrderSerializer(serializers.Serializer):
@@ -57,3 +57,32 @@ class OrdersAssignSerializer(serializers.Serializer):
     def create(self, validated_data):
         order_ids, assign_time = assign_orders(courier_id=validated_data['courier_id'].id)
         return {'orders': [{'id': i} for i in order_ids], 'assign_time': assign_time}
+
+
+class OrderCompleteSerializer(serializers.Serializer):
+    courier_id = serializers.PrimaryKeyRelatedField(write_only=True, queryset=Courier.objects.all())
+    order_id = serializers.PrimaryKeyRelatedField(queryset=Order.objects.all())
+    complete_time = serializers.DateTimeField(write_only=True)
+
+    @staticmethod
+    def validate(attrs):
+        order = attrs['order_id']
+        courier = attrs['courier_id']
+        complete_time = attrs['complete_time']
+
+        if not order.shipment:
+            raise serializers.ValidationError({
+                    'order_id': 'Order was not assigned to any of the couriers.'})
+        elif order.shipment.courier != courier:
+            raise serializers.ValidationError({
+                    'order_id': 'Order was assigned to the other courier.'})
+        elif complete_time < order.shipment.assign_time:
+            raise serializers.ValidationError({
+                    'complete_time': 'Can not be less than assign_time'})
+        return attrs
+
+    def create(self, validated_data):
+        order_id = validated_data['order_id'].id
+        complete_time = validated_data['complete_time']
+        complete_order(order_id=order_id, complete_time=complete_time)
+        return {'order_id': validated_data['order_id']}

@@ -5,7 +5,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 
 from core.models import Order
-from core.serializers import OrderSerializer, OrdersAssignSerializer
+from core.serializers import OrderSerializer, OrdersAssignSerializer, OrderCompleteSerializer
 
 
 class OrderViewSet(viewsets.ViewSet):
@@ -54,6 +54,14 @@ class OrderViewSet(viewsets.ViewSet):
 class OrderAssignView(views.APIView):
     def post(self, request, *args, **kwargs):
         serializer = OrdersAssignSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class OrderCompleteView(views.APIView):
+    def post(self, request, *args, **kwargs):
+        serializer = OrderCompleteSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)

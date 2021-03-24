@@ -33,6 +33,7 @@ router.register(r'orders', views.OrderViewSet, basename='Order')
 
 urlpatterns = [
     path('orders/assign', views.OrderAssignView.as_view()),
+    path('orders/complete', views.OrderCompleteView.as_view()),
     path('admin/', admin.site.urls),
     path('', include(router.urls)),
 ]
