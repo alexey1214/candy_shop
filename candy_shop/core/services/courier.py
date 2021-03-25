@@ -1,24 +1,30 @@
-from django.db import transaction
+from django.db import transaction, IntegrityError
 from django.utils import timezone
 
 from core.models import Courier, Order, Shipment
 
 
-def _fill_the_bag(bag, capacity, region_ids, shift_start, shift_end):
-    orders = (
-            Order.objects.suitable_for_courier(
-                capacity=capacity,
-                region_ids=region_ids,
-                shift_start=shift_start,
-                shift_end=shift_end)
-            .exclude(id__in=bag.keys())
-            .order_by('weight')
-            .values_list('id', 'weight'))
+def _pack_a_bag(courier, filtered_orders):
+    bag = {}
 
-    for order_id, order_weight in orders:
-        if order_weight + sum(bag.values()) > capacity:
-            break
-        bag[order_id] = order_weight
+    for shift in courier.work_shift_intervals:
+        orders = (
+                filtered_orders
+                .suitable_for_courier(
+                    capacity=courier.capacity,
+                    region_ids=courier.region_ids,
+                    shift_start=shift['start'],
+                    shift_end=shift['end'])
+                .exclude(id__in=bag.keys())
+                .order_by('weight')
+                .values_list('id', 'weight'))
+
+        for order_id, order_weight in orders:
+            if order_weight + sum(bag.values()) > courier.capacity:
+                break
+            bag[order_id] = order_weight
+
+    return bag
 
 
 @transaction.atomic
@@ -32,23 +38,19 @@ def assign_orders(courier_id):
     courier = Courier.objects.get(id=courier_id)
 
     # If delivery is in progress, we should return only not (yet) delivered orders
-    active_shipment = courier.shipments.filter(complete_time__isnull=True).last()
-    if active_shipment:
-        undelivered_orders = (
-                active_shipment.orders
-                .filter(complete_time__isnull=True)
-                .values_list('id', flat=True))
-        return sorted(undelivered_orders), active_shipment.assign_time
+    if courier.active_shipment:
+        orders = (Order.objects
+                  .assigned_to_courier(courier)
+                  .not_delivered_yet()
+                  .values_list('id', flat=True))
+        return sorted(orders), courier.active_shipment.assign_time
 
-    # No active delivery, so we should create one
-    bag = {}
-    for shift_start, shift_end in courier.work_shift_intervals:
-        _fill_the_bag(bag, courier.capacity, courier.region_ids, shift_start, shift_end)
-
+    # No active delivery, so we should create one, using not assigned yet orders
+    bag = _pack_a_bag(courier=courier, filtered_orders=Order.objects.not_assigned_yet())
     if bag:
-        order_ids = list(bag.keys())
         shipment = Shipment.objects.create(courier=courier)
-        Order.objects.filter(id__in=order_ids).update(shipment=shipment)
+        fitting_orders = Order.objects.filter(id__in=bag.keys())
+        fitting_orders.update(shipment=shipment)
         shipment.assign_time = timezone.now()
         shipment.save()
         return sorted(bag.keys()), shipment.assign_time
@@ -69,3 +71,23 @@ def complete_order(order_id, complete_time):
             shipment.save()
         order.complete_time = complete_time
         order.save()
+
+
+@transaction.atomic
+def edit_courier(courier, courier_type=None, region_ids=None, work_shift_intervals=None):
+    try:
+        courier.type = courier_type or courier.type
+        courier.region_ids = region_ids or courier.region_ids
+        courier.work_shift_intervals = work_shift_intervals or courier.work_shift_intervals
+
+        # Find suitable (for new parameters) orders among assigned but not yet
+        # delivered orders and throw out unsuitable or non-fitting into the bag
+        # ones
+        if courier.active_shipment:
+            orders = Order.objects.assigned_to_courier(courier).not_delivered_yet()
+            bag = _pack_a_bag(courier=courier, filtered_orders=orders)
+            non_fitting_orders = courier.active_shipment.orders.exclude(id__in=bag.keys())
+            non_fitting_orders.update(shipment=None)
+    except IntegrityError:
+        raise
+    return courier

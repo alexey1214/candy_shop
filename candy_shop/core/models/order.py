@@ -1,6 +1,6 @@
 from django.db import models
 
-from core.managers.order import OrderManager
+from core.managers.order import OrderQueryset
 
 
 class Order(models.Model):
@@ -14,7 +14,7 @@ class Order(models.Model):
     complete_time = models.DateTimeField(blank=True, null=True)
 
     all_objects = models.Manager()
-    objects = OrderManager()
+    objects = OrderQueryset.as_manager()
 
     def __str__(self):
         return f'{self.id}'

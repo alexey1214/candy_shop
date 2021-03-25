@@ -1,11 +1,12 @@
+from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import get_object_or_404
 from rest_framework import status
-from rest_framework import viewsets
+from rest_framework import viewsets, views
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 
 from core.models import CourierType, Courier
-from core.serializers import CourierTypeSerializer, CourierSerializer
+from core.serializers import CourierTypeSerializer, CourierSerializer, CourierEditSerializer
 
 
 class CourierTypeViewSet(viewsets.ModelViewSet):
@@ -55,3 +56,15 @@ class CourierViewSet(viewsets.ViewSet):
         serializer.save()
 
         return Response({'couriers': [{'id': i} for i in valid_ids]}, status=status.HTTP_201_CREATED)
+
+
+class CourierEditView(views.APIView):
+    def patch(self, request, *args, **kwargs):
+        try:
+            courier = Courier.objects.get(id=self.kwargs['pk'])
+        except ObjectDoesNotExist:
+            raise views.exceptions.ValidationError({'courier_id': 'Courier does not exist.'})
+        serializer = CourierEditSerializer(courier, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)

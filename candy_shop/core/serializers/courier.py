@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from core.models import CourierType, Courier, Region
 from core.serializers.utils import TimeIntervalSerializer
+from core.services.courier import edit_courier
 
 
 class CourierTypeSerializer(serializers.ModelSerializer):
@@ -53,3 +54,17 @@ class CourierSerializer(serializers.Serializer):
             courier.work_shifts.get_or_create(start=shift['start'], end=shift['end'])
 
         return courier
+
+
+class CourierEditSerializer(serializers.Serializer):
+    courier_id = serializers.PrimaryKeyRelatedField(source='id', queryset=Courier.objects.all())
+    courier_type = serializers.PrimaryKeyRelatedField(source='type', queryset=CourierType.objects.all())
+    regions = serializers.ListSerializer(source='region_ids', child=serializers.IntegerField(min_value=1))
+    working_hours = serializers.ListSerializer(source='work_shift_intervals', child=TimeIntervalSerializer())
+
+    def update(self, instance, validated_data):
+        return edit_courier(
+                courier=instance,
+                courier_type=validated_data.get('type'),
+                region_ids=validated_data.get('region_ids'),
+                work_shift_intervals=validated_data.get('work_shift_intervals'))
