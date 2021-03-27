@@ -54,6 +54,10 @@ class Courier(models.Model):
     def active_shipment(self):
         return self.shipments.filter(complete_time__isnull=True).last()
 
+    @property
+    def completed_shipments(self):
+        return self.shipments.filter(complete_time__isnull=False)
+
 
 class CourierWorkShift(models.Model):
     courier = models.ForeignKey(

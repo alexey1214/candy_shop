@@ -1,4 +1,7 @@
+from collections import defaultdict
+
 from django.db import transaction, IntegrityError
+from django.db.models import Count
 from django.utils import timezone
 
 from core.models import Courier, Order, Shipment
@@ -92,3 +95,61 @@ def edit_courier(courier, courier_type=None, region_ids=None, work_shift_interva
     except IntegrityError:
         raise
     return courier
+
+
+def _get_durations_and_regions(shipment):
+    result = []
+
+    complete_times_and_regions = (
+            shipment.orders
+            .order_by('complete_time')
+            .values_list('complete_time', 'region'))
+
+    for i, (complete_time, region) in enumerate(complete_times_and_regions):
+        if i > 0:
+            prev_complete_time, _ = complete_times_and_regions[i - 1]
+            duration = complete_time - prev_complete_time
+        else:
+            duration = complete_time - shipment.assign_time
+        result.append((int(duration.total_seconds()), region))
+
+    return result
+
+
+def calculate_rating(courier):
+    if courier.completed_shipments.exists():
+        regions_and_durations = defaultdict(list)
+
+        for shipment in courier.completed_shipments:
+            durations_and_regions = _get_durations_and_regions(shipment=shipment)
+            for d, r in durations_and_regions:
+                regions_and_durations[r].append(d)
+
+        avg_durations = [sum(ds) / len(ds) for ds in regions_and_durations.values()]
+
+        if avg_durations:
+            t = min(avg_durations)
+            rating = (60 * 60 - min(t, 60 * 60)) / (60 * 60) * 5
+            return round(rating, 2)
+
+    return None
+
+
+def calculate_earnings(courier):
+    def get_coefficient(courier_type_id):
+        if courier_type_id == 'foot':
+            return 2
+        elif courier_type_id == 'bike':
+            return 5
+        elif courier_type_id == 'car':
+            return 9
+        return 0
+
+    if courier.completed_shipments.exists():
+        types_and_counts = (
+                courier.completed_shipments
+                .values_list('initial_courier_type')
+                .annotate(count=Count('initial_courier_type')))
+        return 500 * sum(get_coefficient(t) * c for t, c in types_and_counts)
+
+    return None

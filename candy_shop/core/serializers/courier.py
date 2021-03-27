@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from core.models import CourierType, Courier, Region
 from core.serializers.utils import TimeIntervalSerializer
-from core.services.courier import edit_courier
+from core.services.courier import edit_courier, calculate_rating, calculate_earnings
 
 
 class CourierTypeSerializer(serializers.ModelSerializer):
@@ -68,3 +68,20 @@ class CourierEditSerializer(serializers.Serializer):
                 courier_type=validated_data.get('type'),
                 region_ids=validated_data.get('region_ids'),
                 work_shift_intervals=validated_data.get('work_shift_intervals'))
+
+
+class CourierStatsSerializer(serializers.Serializer):
+    courier_id = serializers.PrimaryKeyRelatedField(source='id', queryset=Courier.objects.all())
+    courier_type = serializers.PrimaryKeyRelatedField(source='type', queryset=CourierType.objects.all())
+    regions = serializers.ListSerializer(source='region_ids', child=serializers.IntegerField(min_value=1))
+    working_hours = serializers.ListSerializer(source='work_shift_intervals', child=TimeIntervalSerializer())
+    rating = serializers.SerializerMethodField()
+    earnings = serializers.SerializerMethodField()
+
+    @staticmethod
+    def get_rating(obj):
+        return calculate_rating(obj)
+
+    @staticmethod
+    def get_earnings(obj):
+        return calculate_earnings(obj)

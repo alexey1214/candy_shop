@@ -6,7 +6,9 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 
 from core.models import CourierType, Courier
-from core.serializers import CourierTypeSerializer, CourierSerializer, CourierEditSerializer
+from core.serializers import (
+        CourierTypeSerializer, CourierSerializer, CourierEditSerializer,
+        CourierStatsSerializer,)
 
 
 class CourierTypeViewSet(viewsets.ModelViewSet):
@@ -58,7 +60,12 @@ class CourierViewSet(viewsets.ViewSet):
         return Response({'couriers': [{'id': i} for i in valid_ids]}, status=status.HTTP_201_CREATED)
 
 
-class CourierEditView(views.APIView):
+class CourierDetailView(views.APIView):
+    def get(self, request, pk):
+        courier = get_object_or_404(Courier.objects.all(), pk=pk)
+        serializer = CourierStatsSerializer(courier)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
     def patch(self, request, *args, **kwargs):
         try:
             courier = Courier.objects.get(id=self.kwargs['pk'])
