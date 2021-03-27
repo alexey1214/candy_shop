@@ -48,7 +48,7 @@ def assign_orders(courier_id):
     # No active delivery, so we should create one, using not assigned yet orders
     bag = _pack_a_bag(courier=courier, filtered_orders=Order.objects.not_assigned_yet())
     if bag:
-        shipment = Shipment.objects.create(courier=courier)
+        shipment = Shipment.objects.create(courier=courier, initial_courier_type=courier.type)
         fitting_orders = Order.objects.filter(id__in=bag.keys())
         fitting_orders.update(shipment=shipment)
         shipment.assign_time = timezone.now()

@@ -18,6 +18,7 @@ class Migration(migrations.Migration):
                 ('assign_time', models.DateTimeField(blank=True, null=True)),
                 ('complete_time', models.DateTimeField(blank=True, null=True)),
                 ('courier', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='shipments', to='core.courier')),
+                ('initial_courier_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='shipments', to='core.couriertype'))
             ],
         ),
         migrations.AddField(
