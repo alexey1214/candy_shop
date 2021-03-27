@@ -79,6 +79,7 @@ def edit_courier(courier, courier_type=None, region_ids=None, work_shift_interva
         courier.type = courier_type or courier.type
         courier.region_ids = region_ids or courier.region_ids
         courier.work_shift_intervals = work_shift_intervals or courier.work_shift_intervals
+        courier.save()
 
         # Find suitable (for new parameters) orders among assigned but not yet
         # delivered orders and throw out unsuitable or non-fitting into the bag
