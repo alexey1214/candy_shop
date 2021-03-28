@@ -1,5 +1,7 @@
 # Project-related files
 candy_shop/candy_shop/settings/local.py
+logs/*
+!logs/.keep
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

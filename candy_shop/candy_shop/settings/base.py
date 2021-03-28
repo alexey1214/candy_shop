@@ -126,3 +126,34 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# Logging
+# https://docs.djangoproject.com/en/3.1/topics/logging/
+LOGFILE_MAX_BYTES = 1 * 1024 * 1024
+LOGFILE_BACKUP_COUNT = 2
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'main': {
+            'format': 'level=%(levelname)s|time=%(asctime)s|%(message)s',
+        },
+    },
+    'handlers': {
+        'django': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': BASE_DIR.parent.parent / 'logs/django.log',
+            'maxBytes': LOGFILE_MAX_BYTES,
+            'backupCount': LOGFILE_BACKUP_COUNT,
+            'formatter': 'main',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['django'],
+            'level': 'DEBUG',
+        },
+    },
+}
