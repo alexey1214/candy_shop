@@ -2,7 +2,7 @@ from decimal import Decimal
 
 from rest_framework import serializers
 
-from core.models import Order, Courier
+from core.models import Order, Courier, Region
 from core.serializers.utils import TimeIntervalSerializer
 from core.services.courier import assign_orders, complete_order
 
@@ -32,10 +32,13 @@ class OrderSerializer(serializers.Serializer):
             ]}
         """
         order_id = validated_data['id']
+        region_id = validated_data['region']['id']
+
+        region, _ = Region.objects.get_or_create(id=region_id)
         order, created = Order.objects.get_or_create(
                 id=order_id,
                 defaults={'weight': validated_data['weight'],
-                          'region_id': validated_data['region']['id']})
+                          'region': region})
         if not created:
             raise serializers.ValidationError(f'Order({order_id}) already exists.')
 
